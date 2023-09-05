@@ -1,22 +1,25 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { getContacts, getFilter } from 'redux/selectors';
+import { selectContacts, selectFilter } from 'redux/selectors';
 import { setContactsFilter } from 'redux/filterSlice';
 import { Input } from './Filter.styled';
 
 function Filter() {
   const dispatch = useDispatch();
+  const { filter } = useSelector(selectFilter);
 
   const handleFilterChange = event => {
-    dispatch(setContactsFilter(event.target.value));
+    dispatch(setContactsFilter(event.target.value.trim()));
   };
+
+  const contacts = useSelector(selectContacts);
 
   return (
     <Input
       type="text"
       name="filter"
-      value={useSelector(getFilter)}
+      value={filter}
       onChange={handleFilterChange}
-      disabled={useSelector(getContacts).length === 0}
+      disabled={contacts.length === 0}
     />
   );
 }

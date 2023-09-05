@@ -1,15 +1,39 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addContact } from '../../redux/contactsSlice';
 import Notiflix from 'notiflix';
+import { addContact } from 'redux/operations';
+import { selectContacts } from 'redux/selectors';
 import { Form, Input, Text, Button } from './ContactForm.styled';
 
-function ContactForm() {
+const ContactForm = () => {
   const dispatch = useDispatch();
-  const contacts = useSelector(state => state.contacts);
+  const contacts = useSelector(selectContacts);
 
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
+
+  const handleSubmit = event => {
+    event.preventDefault();
+
+    const contact = {
+      name: name,
+      number: number,
+    };
+
+    const existingContact = contacts.find(
+      ({ name }) => name.toLowerCase() === contact.name.toLowerCase()
+    );
+
+    if (existingContact) {
+      // Notiflix.Report.warning(`Contact with name ${name} already exists!`);
+      Notiflix.Notify.info(`${name} is already in contacts`);
+      return;
+    }
+
+    dispatch(addContact(contact));
+    setName('');
+    setNumber('');
+  };
 
   const handleNameChange = event => {
     setName(event.target.value);
@@ -17,26 +41,6 @@ function ContactForm() {
 
   const handleNumberChange = event => {
     setNumber(event.target.value);
-  };
-
-  const handleSubmit = event => {
-    event.preventDefault();
-
-    if (name.trim() === '' || number.trim() === '') {
-      return;
-    }
-
-    const existingContact = contacts.find(
-      contact => contact.name.toLowerCase() === name.toLowerCase()
-    );
-    if (existingContact) {
-      Notiflix.Notify.info(`${name} is already in contacts`);
-      return;
-    }
-
-    dispatch(addContact(name, number));
-    setName('');
-    setNumber('');
   };
 
   return (
@@ -64,6 +68,6 @@ function ContactForm() {
       <Button type="submit">Add Contact</Button>
     </Form>
   );
-}
+};
 
 export default ContactForm;
